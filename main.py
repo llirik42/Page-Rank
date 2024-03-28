@@ -1,13 +1,12 @@
 import networkx as nx
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 
 g = nx.DiGraph()
 
 random.seed(0)
 
-vertices_count = 20
+vertices_count = 50
 edges_count = vertices_count * vertices_count // 2
 
 
@@ -20,9 +19,6 @@ for i in range(edges_count):
 
     if v1 != v2:
         g.add_edge(v1, v2)
-
-nx.draw_networkx(g)
-plt.show()
 
 precision = 5
 number_of_nodes: int = g.number_of_nodes()
