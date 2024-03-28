@@ -1,0 +1,5 @@
+habr_article_selector = "article"
+base_habr_articles_link = "https://habr.com/ru/articles/"
+habr_body_selector = "#post-content-body"
+habr_article_link_selector = ".tm-title__link"
+habr_article_time_tag = "time"
