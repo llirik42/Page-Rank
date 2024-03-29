@@ -16,6 +16,9 @@ class Edge:
 float_array = np.ndarray[typing.Any, np.dtype[np.float64]]
 
 
+# TODO: add doc to everything
+
+
 def calculate_ranks(
         pairs: list[Pair],
         precision: int = 5,
