@@ -1,6 +1,6 @@
 import random
 
-from ranking import calculate_ranks, Pair, RankedObject
+from ranking import calculate_ranks, Pair
 
 random.seed(1)
 edges = []

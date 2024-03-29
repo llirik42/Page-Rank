@@ -1,5 +1,6 @@
 import typing
 from dataclasses import dataclass
+
 import numpy as np
 
 from .pair import Pair
