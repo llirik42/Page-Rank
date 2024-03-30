@@ -6,6 +6,8 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import aiohttp
 
+from ranking import calculate_ranks
+
 
 async def fetch_url(url):
     async with aiohttp.ClientSession() as session:
@@ -47,7 +49,8 @@ async def main():
     nx.draw_networkx(graph)
     plt.show()
 
-    print(graph.edges())
+    result = calculate_ranks(pairs=graph.edges(), precision=5, damping_factor=1)
+    print(result)
 
 if __name__ == "__main__":
     asyncio.run(main())
