@@ -9,6 +9,10 @@ from .ranked_object import RankedObject
 
 @dataclass
 class Edge:
+    """
+    Represents an edge of graph.
+    """
+
     src: int
     dst: int
 
@@ -16,13 +20,28 @@ class Edge:
 float_array = np.ndarray[typing.Any, np.dtype[np.float64]]
 
 
-# TODO: add doc to everything
-
-
 def calculate_ranks(
         pairs: list[Pair],
         precision: int = 5,
         damping_factor: float = 1) -> list[RankedObject]:
+    """
+    Calculates ranks of objects represented as a list of directed pairs. Function accepts **precision**
+    and **damping factor**.
+
+    **Precision** determines number **epsilon**, where **epsilon** = 0.1^(**precision**). **Epsilon** determines
+    number of iterations for calculating ranks. Iterations stop when the difference between iterations is less
+    than **epsilon**. So, the smaller **precision**, the less iteration will be made and less accurate will be result.
+    But large values of **precision** increase time of ranks calculation.
+
+    The smaller the **damping factor**, the faster the ranks are calculated, but the smaller
+    the difference between the ranks of different elements (order of ranks probably would be the same).
+
+    :param pairs: list of directed pairs
+    :param precision: number of decimal places. It must be non-negative
+    :param damping_factor: coefficient that regulates ranking. It must be in [0, 1]
+    :return: list of ranked objects
+    """
+
     unique_objects: list[object] = _find_unique_objects_in_pairs(pairs)
     unique_objects_count: int = len(unique_objects)
 
@@ -36,7 +55,7 @@ def calculate_ranks(
         enumerated_objects=enumerated_objects
     )
 
-    graph_ranks: list[float] = calculate_graph_ranks(
+    graph_ranks: list[float] = _calculate_graph_ranks(
         number_of_vertices=unique_objects_count,
         edges=graph_edges,
         precision=precision,
@@ -50,7 +69,7 @@ def calculate_ranks(
     return sorted(unsorted_result, key=lambda x: x.rank, reverse=True)
 
 
-def calculate_graph_ranks(
+def _calculate_graph_ranks(
         number_of_vertices: int,
         edges: list[Edge],
         precision: int,
