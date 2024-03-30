@@ -47,5 +47,7 @@ async def main():
     nx.draw_networkx(graph)
     plt.show()
 
+    print(graph.edges())
+
 if __name__ == "__main__":
     asyncio.run(main())
