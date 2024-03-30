@@ -5,8 +5,7 @@ import requests
 from aiohttp import ClientSession
 from bs4 import ResultSet
 
-
-
+from habr_parsing.habr_consts_parser import habr_article_selector
 from ranking import Pair
 from dto import HabrArticle
 from datetime import datetime
