@@ -9,3 +9,4 @@ class Pair:
 
     src: object
     dst: object
+    weight: float = 1

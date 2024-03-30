@@ -5,9 +5,9 @@ from urllib.parse import urlparse, ParseResult
 import aiohttp
 import bs4
 import requests
-from bs4 import BeautifulSoup, ResultSet, Tag
+from bs4 import BeautifulSoup, ResultSet
 
-from habr_article import articles, HabrArticle
+from dto.habr_article import articles, HabrArticle
 from habr_consts_parser import habr_article_selector, base_habr_articles_link, habr_body_selector, \
     habr_article_link_selector, habr_article_time_tag
 
@@ -49,17 +49,21 @@ def parse_article(article_tag) -> HabrArticle:
     text: str = body.text
     created_date: str = article_tag.select_one(selector=habr_article_time_tag).get("datetime")
     parsed_created_date: datetime = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
-    return HabrArticle(title=name, text=text, html_body=body, link=article_full_link, created_date=parsed_created_date)
+    return HabrArticle(title=name, text=text, html_body=body, link=article_full_link, creation_date=parsed_created_date)
 
 
-def parse_articles(pages=10) -> articles:
+def parse_articles(pages=1) -> articles:
     res: articles = []
     habr_pages = fetch_raw_habr_pages(pages=pages)
+
     for page in habr_pages:
         name: str
         soup: bs4.BeautifulSoup = BeautifulSoup(page, "html.parser")
         articles_tags: ResultSet = soup.select(selector=habr_article_selector)
+
         for article_tag in articles_tags:
             article: HabrArticle = parse_article(article_tag)
-            print(article.created_date)
+            print(article.title)
+            res.append(article)
+
     return res

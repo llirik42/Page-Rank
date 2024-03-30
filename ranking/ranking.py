@@ -15,6 +15,7 @@ class Edge:
 
     src: int
     dst: int
+    weight: float
 
 
 float_array = np.ndarray[typing.Any, np.dtype[np.float64]]
@@ -29,9 +30,10 @@ def calculate_ranks(
     and **damping factor**.
 
     **Precision** determines number **epsilon**, where **epsilon** = 0.1^(**precision**). **Epsilon** determines
-    number of iterations for calculating ranks. Iterations stop when the difference between iterations is less
-    than **epsilon**. So, the smaller **precision**, the less iteration will be made and less accurate will be result.
-    But large values of **precision** increase time of ranks calculation.
+    number of iterations for calculating ranks. Iterations stop when the difference between iterations
+    (between ranks or between errors) is less than **epsilon**. So, the smaller **precision**,
+    the less iteration will be made and less accurate will be result. But large values of **precision**
+    increase time of ranks calculation.
 
     The smaller the **damping factor**, the faster the ranks are calculated, but the smaller
     the difference between the ranks of different elements (order of ranks probably would be the same).
@@ -79,7 +81,7 @@ def _calculate_graph_ranks(
         edges=edges
     )
 
-    damping_vector: float_array = _get_damping_vector(
+    damping_vector: float_array = _calculate_damping_vector(
         number_of_vertices=number_of_vertices,
         damping_factor=damping_factor
     )
@@ -114,7 +116,7 @@ def _get_start_ranks(number_of_vertices: int) -> float_array:
     )
 
 
-def _get_damping_vector(number_of_vertices: int, damping_factor: float) -> float_array:
+def _calculate_damping_vector(number_of_vertices: int, damping_factor: float) -> float_array:
     return np.full(shape=(number_of_vertices, 1), fill_value=1 - damping_factor)
 
 
@@ -122,17 +124,21 @@ def _calculate_matrix(number_of_vertices: int, edges: list[Edge]) -> float_array
     matrix: float_array = np.zeros((number_of_vertices, number_of_vertices))
     fill_value: float = 1 / number_of_vertices
 
-    for e in edges:
-        matrix[e.dst][e.src] = 1
+    for e1 in edges:
+        current_sum: float = 0
+        for e2 in edges:
+            if e1.src == e2.src:
+                current_sum += e2.weight
 
-    sums: list[int] = [sum(c) for c in matrix.transpose()]
+        matrix[e1.dst, e1.src] = e1.weight / current_sum if current_sum else 0
 
-    for i in range(number_of_vertices):
-        for j in range(number_of_vertices):
-            current_sum: int = sums[j]
-            matrix[i][j] = fill_value if current_sum == 0 else matrix[i][j] / current_sum
+    matrix_t: float_array = matrix.transpose()
 
-    return matrix
+    for y in range(number_of_vertices):
+        if (matrix_t[y] == np.zeros(number_of_vertices)).all():
+            matrix_t[y] = np.full(number_of_vertices, fill_value)
+
+    return matrix_t.transpose()
 
 
 def _iterate(start_ranks: float_array,
@@ -142,13 +148,16 @@ def _iterate(start_ranks: float_array,
              damping_factor: float) -> float_array:
     ranks: float_array = start_ranks
 
+    prev_diff: float = 0
     while True:
         new_ranks: float_array = damping_vector + damping_factor * matrix.dot(ranks)
         diff: float = float(np.linalg.norm(ranks - new_ranks))
         ranks = new_ranks
 
-        if diff < epsilon:
+        if diff < epsilon or abs(diff - prev_diff) < epsilon:
             break
+
+        prev_diff = diff
 
     return ranks
 
@@ -166,6 +175,7 @@ def _enumerated_objects_to_edges(
         pairs: list[Pair],
         enumerated_objects: dict[object, int]) -> list[Edge]:
     return [Edge(
-        enumerated_objects[pair.src],
-        enumerated_objects[pair.dst]
+        src=enumerated_objects[pair.src],
+        dst=enumerated_objects[pair.dst],
+        weight=pair.weight
     ) for pair in pairs]
