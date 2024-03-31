@@ -6,12 +6,17 @@ import bs4
 from aiohttp import ClientSession
 
 from dto import HabrArticle
+from general_parsing.parse_links import get_html_content
 from habr_parsing.consts import habr_article_selector, habr_article_main_title, habr_article_body, \
-    habr_article_timestamp, link_tag
+    habr_article_timestamp, link_tag, list_habr_article_main_title
 
 
-async def parse_article(url: str, session: ClientSession) -> HabrArticle:
-    content: str = await (await session.get(url)).text()
+async def parse_article(url: str, session: ClientSession) -> HabrArticle | None:
+    try:
+        content: str = await get_html_content(session, url)
+    except ValueError:
+        return None
+
     soup: bs4.BeautifulSoup = bs4.BeautifulSoup(content, "html.parser")
     article_tag: bs4.Tag = soup.select_one(selector=habr_article_selector)
 
@@ -36,10 +41,12 @@ async def extract_article_links_in_body(article: HabrArticle) -> list[str]:
     links = [link.get('href') for link in soup.select(selector=link_tag)]
     return list(map(str, links))
 
-async def extract_article_links_in_body(article: HabrArticle) -> list[str]:
-    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(article.html, "html.parser")
-    links = [link.get('href') for link in soup.select(selector=link_tag)]
+
+async def extract_article_links_in_list_page(content: str) -> list[str]:
+    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(content, "html.parser")
+    links = [link.get('href') for link in soup.select(selector=list_habr_article_main_title)]
     return list(map(str, links))
+
 
 async def main():
     async with aiohttp.ClientSession() as session:
