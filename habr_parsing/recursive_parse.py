@@ -1,13 +1,12 @@
 import asyncio
 import aiohttp
 from dto.pair import Pair
-from general_parsing.parse_links import get_links, get_links_by_url
+from general_parsing.parse_links import get_links, get_links_by_url, get_html_content
 
 
 async def fetch_page(session, page_number):
     url = f'https://habr.com/all/page{page_number}/'
-    async with session.get(url) as response:
-        return url, await response.text()
+    return get_html_content(session, url)
 
 
 async def fetch_raw_habr_pages_async(pages=10):
@@ -39,10 +38,10 @@ async def parse_articles(pages=1, max_links=10) -> list[Pair]:
     habr_pages = await fetch_raw_habr_pages_async(pages=pages)
     for page in habr_pages:
         url, content = page
-        links = await get_links(content, url)
-        for link in links:
-            res.append(Pair(src=url, dst=link))
-            await get_links_recursive(link, res, max_links_cnt=max_links)
+
+        # for link in links:
+        #     res.append(Pair(src=url, dst=link))
+        #     await get_links_recursive(link, res, max_links_cnt=max_links)
 
     print(res)
     return res

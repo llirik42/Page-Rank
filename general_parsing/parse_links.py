@@ -4,11 +4,9 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 
-async def get_html_content(url: str) -> str:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            html_content = await response.text()
-    return html_content
+async def get_html_content(session, url: str) -> str:
+    async with session.get(url) as response:
+        return await response.text()
 
 
 async def get_links(html_content: str, base_url: str) -> list[str]:

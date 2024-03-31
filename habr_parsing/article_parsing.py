@@ -31,11 +31,15 @@ async def parse_article(url: str, session: ClientSession) -> HabrArticle:
     )
 
 
-async def extract_article_links(article: HabrArticle) -> list[str]:
+async def extract_article_links_in_body(article: HabrArticle) -> list[str]:
     soup: bs4.BeautifulSoup = bs4.BeautifulSoup(article.html, "html.parser")
     links = [link.get('href') for link in soup.select(selector=link_tag)]
     return list(map(str, links))
 
+async def extract_article_links_in_body(article: HabrArticle) -> list[str]:
+    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(article.html, "html.parser")
+    links = [link.get('href') for link in soup.select(selector=link_tag)]
+    return list(map(str, links))
 
 async def main():
     async with aiohttp.ClientSession() as session:
