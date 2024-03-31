@@ -35,7 +35,8 @@ async def get_links_recursive(session: ClientSession, url, res=None, visited=Non
         return res
 
     for link in links:
-        res.append(Pair(src=url, dst=link))
+        pair = Pair(src=url, dst=link)
+        res.append(pair)
         await get_links_recursive(session, link, res, visited, max_links_cnt)
 
     return res
