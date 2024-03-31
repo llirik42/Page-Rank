@@ -38,7 +38,7 @@ async def get_links_recursive(session: ClientSession, url, res=None, visited=Non
         return res
 
     for link in links:
-        print(link, is_habr_articles_link(link))
+        #print(link, is_habr_articles_link(link))
         if not is_habr_articles_link(link) and only_habr_links:
             continue
         pair = Pair(src=url, dst=link)
