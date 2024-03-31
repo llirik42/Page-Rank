@@ -3,6 +3,7 @@ from typing import Optional
 
 from aiohttp import ClientSession
 
+from draw import draw_graph
 from dto import HabrArticle
 from dto.habr_article import articles
 from dto.pair import Pair
@@ -21,10 +22,15 @@ async def main():
             tasks.append(asyncio.create_task(parse_article(link, session)))
         articles_parsed: tuple[Optional[HabrArticle]] = await asyncio.gather(*tasks)
         articles_filtered: articles = list(filter(None, articles_parsed))
+        all_pairs: list[Pair] = []
         for article_filtered in articles_filtered:
             pairs = (await get_links_recursive(session, article_filtered.link, max_links_cnt=2))
-            ranked_objects: list[RankedObject] = calculate_ranks(pairs, precision=5, damping_factor=1)
-            print(ranked_objects)
+            all_pairs.extend(pairs)
+            # draw_graph(pairs)
+
+        ranked_objects: list[RankedObject] = calculate_ranks(all_pairs, precision=5, damping_factor=1)
+        print(ranked_objects)
+        draw_graph(all_pairs)
 
 
 if __name__ == '__main__':
