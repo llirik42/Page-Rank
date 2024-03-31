@@ -3,7 +3,7 @@ from typing import Optional
 
 from aiohttp import ClientSession
 
-from draw import draw_graph
+from helpers import draw_graph
 from dto import HabrArticle
 from dto.habr_article import articles
 from dto.pair import Pair
@@ -24,7 +24,7 @@ async def main():
         articles_filtered: articles = list(filter(None, articles_parsed))
         all_pairs: list[Pair] = []
         for article_filtered in articles_filtered:
-            pairs = (await get_links_recursive(session, article_filtered.link, max_links_cnt=2))
+            pairs = (await get_links_recursive(session, article_filtered.link, max_links_cnt=2, only_habr_links=True))
             all_pairs.extend(pairs)
             # draw_graph(pairs)
 

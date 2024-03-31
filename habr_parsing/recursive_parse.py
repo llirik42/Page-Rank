@@ -6,6 +6,7 @@ from aiohttp import ClientSession
 from dto.pair import Pair
 from general_parsing.parse_links import get_links_by_url, get_html_content
 from habr_parsing.article_parsing import extract_article_links_in_list_page
+from helpers import is_habr_articles_link
 
 
 async def fetch_page(session, page_number):
@@ -19,25 +20,31 @@ async def fetch_raw_habr_pages_async(session: ClientSession, pages=10):
     return await asyncio.gather(*tasks)
 
 
-async def get_links_recursive(session: ClientSession, url, res=None, visited=None, max_links_cnt=10) -> list[Pair]:
+async def get_links_recursive(session: ClientSession, url, res=None, visited=None, max_links_cnt=10,
+                              only_habr_links=False) -> list[Pair]:
+
     if res is None:
         res: list[Pair] = []
+
     if visited is None:
         visited = set()
     if len(res) >= max_links_cnt or url in visited:
         return res
 
     visited.add(url)
-
     try:
         links = await get_links_by_url(session, url)
     except ValueError:
         return res
 
     for link in links:
+        print(link, is_habr_articles_link(link))
+        if not is_habr_articles_link(link) and only_habr_links:
+            continue
+        print(link)
         pair = Pair(src=url, dst=link)
         res.append(pair)
-        await get_links_recursive(session, link, res, visited, max_links_cnt)
+        await get_links_recursive(session, link, res, visited, max_links_cnt, only_habr_links)
 
     return res
 
