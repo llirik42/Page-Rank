@@ -7,7 +7,7 @@ from aiohttp import ClientSession
 
 from dto import HabrArticle
 from habr_parsing.consts import habr_article_selector, habr_article_main_title, habr_article_body, \
-    habr_article_timestamp
+    habr_article_timestamp, link_tag
 
 
 async def parse_article(url: str, session: ClientSession) -> HabrArticle:
@@ -32,9 +32,9 @@ async def parse_article(url: str, session: ClientSession) -> HabrArticle:
 
 
 async def extract_article_links(article: HabrArticle) -> list[str]:
-    # TODO
-    # Function accepts article and returns all links on page with it (links to habr only)
-    return ['URL-1', 'URL-2', 'URL-3', 'URL-4']
+    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(article.html, "html.parser")
+    links = [link.get('href') for link in soup.select(selector=link_tag)]
+    return list(map(str, links))
 
 
 async def main():
@@ -48,6 +48,7 @@ async def main():
         print("Html:", habr_article.html)
         print("Link:", habr_article.link)
         print("Creation Date:", habr_article.creation_date)
+        print(await extract_article_links(habr_article))
 
 
 # Run the asyncio event loop
