@@ -21,14 +21,10 @@ async def main():
             tasks.append(asyncio.create_task(parse_article(link, session)))
         articles_parsed: tuple[Optional[HabrArticle]] = await asyncio.gather(*tasks)
         articles_filtered: articles = list(filter(None, articles_parsed))
-        for article in articles_filtered:
-            task = asyncio.create_task(get_links_recursive(session, article.link, max_links_cnt=10))
-            tasks.append(task)
-
-        results: tuple[list[Pair]] = await asyncio.gather(*tasks)
-        pairs: list[Pair] = [*results]
-        ranked_objects: list[RankedObject] = calculate_ranks(pairs, precision=5, damping_factor=1)
-        print(ranked_objects)
+        for articles_filtered in articles_filtered:
+            pairs = (await get_links_recursive(session, articles_filtered.link, max_links_cnt=2))
+            ranked_objects: list[RankedObject] = calculate_ranks(pairs, precision=5, damping_factor=1)
+            print(ranked_objects)
 
 
 if __name__ == '__main__':
