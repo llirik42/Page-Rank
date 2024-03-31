@@ -1,16 +1,11 @@
 import asyncio
-import os
-from typing import Optional
 from urllib.parse import urljoin
 
-import aiohttp
 from aiohttp import ClientSession
 
-from dto import HabrArticle
-from dto.habr_article import articles
 from dto.pair import Pair
-from general_parsing.parse_links import get_links, get_links_by_url, get_html_content
-from habr_parsing.article_parsing import extract_article_links_in_list_page, parse_article
+from general_parsing.parse_links import get_links_by_url, get_html_content
+from habr_parsing.article_parsing import extract_article_links_in_list_page
 
 
 async def fetch_page(session, page_number):
