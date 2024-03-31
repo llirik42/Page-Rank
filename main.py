@@ -1,31 +1,35 @@
 import asyncio
+from typing import Optional
 
 from aiohttp import ClientSession
 
+from dto import HabrArticle
+from dto.habr_article import articles
+from dto.pair import Pair
 from habr_parsing.article_parsing import parse_article
+from habr_parsing.recursive_parse import parse_articles, get_links_recursive
+from ranking import RankedObject, calculate_ranks
 
 
 async def main():
     async with ClientSession() as session:
-        res = await parse_article(url='https://habr.com/ru/articles/804135/', session=session)
-        print(res)
-# from ranking import calculate_ranks, RankedObject, Pair
-#
-# pairs: list[Pair] = [
-#     Pair('a', 'b', 1),
-#     Pair('c', 'b', 1),
-#     Pair('b', 'd', 1),
-#     Pair('a', 'x', 1),
-#     Pair('x', 'b', 1),
-#     Pair('w', 'g', 1),
-#     Pair('d', 'x', 1),
-#     Pair('w', 'c', 1),
-# ]
-#
-# ranked_objects: list[RankedObject] = calculate_ranks(pairs, precision=5, damping_factor=1)
-#
-# for ro in ranked_objects:
-#     print(ro)
+        articles_links = await parse_articles(session, pages=1)
+
+        tasks = []
+
+        for link in articles_links:
+            tasks.append(asyncio.create_task(parse_article(link, session)))
+        articles_parsed: tuple[Optional[HabrArticle]] = await asyncio.gather(*tasks)
+        articles_filtered: articles = list(filter(None, articles_parsed))
+        for article in articles_filtered:
+            task = asyncio.create_task(get_links_recursive(session, article.link, max_links_cnt=10))
+            tasks.append(task)
+
+        results: tuple[list[Pair]] = await asyncio.gather(*tasks)
+        pairs: list[Pair] = [*results]
+        ranked_objects: list[RankedObject] = calculate_ranks(pairs, precision=5, damping_factor=1)
+        print(ranked_objects)
+
 
 if __name__ == '__main__':
     asyncio.run(main())

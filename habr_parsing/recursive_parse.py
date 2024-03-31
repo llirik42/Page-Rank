@@ -61,25 +61,3 @@ async def parse_articles(session: ClientSession, pages: int = 1) -> list[str]:
         res.extend(link_joined)
 
     return res
-
-
-async def main():
-    async with aiohttp.ClientSession() as session:
-        articles_links = await parse_articles(session, pages=10)
-
-        tasks = []
-
-        for link in articles_links:
-            tasks.append(asyncio.create_task(parse_article(link, session)))
-        articles_parsed: tuple[Optional[HabrArticle]] = await asyncio.gather(*tasks)
-        articles_filtered: articles = list(filter(None, articles_parsed))
-        for article in articles_filtered:
-            task = asyncio.create_task(get_links_recursive(session, article.link, max_links_cnt=10))
-            tasks.append(task)
-
-        results: list[Pair] = await asyncio.gather(*tasks)
-        print(results[0].dst)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())

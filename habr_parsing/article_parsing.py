@@ -1,4 +1,5 @@
 import asyncio
+import random
 from datetime import datetime
 from typing import Optional
 
@@ -14,6 +15,7 @@ from habr_parsing.consts import habr_article_selector, habr_article_main_title, 
 
 async def parse_article(url: str, session: ClientSession) -> Optional[HabrArticle]:
     try:
+        await asyncio.sleep(random.randint(0, 5))
         content: str = await get_html_content(session, url)
     except ValueError:
         return None
