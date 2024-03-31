@@ -9,3 +9,6 @@ class HabrArticle:
     html: str
     link: str
     creation_date: datetime
+
+
+articles = list[HabrArticle]

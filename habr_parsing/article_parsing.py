@@ -39,19 +39,7 @@ async def extract_article_links(article: HabrArticle) -> list[str]:
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        # Call the parse_article function with the URL and session
         habr_article = await parse_article("https://habr.com/ru/articles/454/", session)
-
-        # Print the parsed article information
-        print("Title:", habr_article.title)
-        print("Text:", habr_article.text)
-        print("Html:", habr_article.html)
-        print("Link:", habr_article.link)
-        print("Creation Date:", habr_article.creation_date)
-        print(await extract_article_links(habr_article))
-
-
-# Run the asyncio event loop
 
 
 if __name__ == "__main__":
