@@ -27,4 +27,5 @@ async def main():
 # for ro in ranked_objects:
 #     print(ro)
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())

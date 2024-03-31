@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .pair import Pair
+from dto.pair import Pair
 from .ranked_object import RankedObject
 
 
