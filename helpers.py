@@ -24,5 +24,5 @@ def draw_graph(pairs: list[Pair]):
 
 
 def is_habr_articles_link(url):
-    pattern = r"^https://habr\.com/ru/articles/\d+/\??.*$"
+    pattern = r"^https?:\/\/habr\.com\/ru\/.*?(?:post|articles|blog|news)\/\d+\/?$"
     return bool(re.match(pattern, url))

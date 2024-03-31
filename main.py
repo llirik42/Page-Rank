@@ -14,7 +14,7 @@ from ranking import RankedObject, calculate_ranks
 
 async def main():
     async with ClientSession() as session:
-        articles_links = await parse_articles(session, pages=1)
+        articles_links = ['https://habr.com/ru/articles/789252/']
 
         tasks = []
 
