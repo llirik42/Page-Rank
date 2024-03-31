@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from typing import Optional
 
 import aiohttp
 import bs4
@@ -11,7 +12,7 @@ from habr_parsing.consts import habr_article_selector, habr_article_main_title, 
     habr_article_timestamp, link_tag, list_habr_article_main_title
 
 
-async def parse_article(url: str, session: ClientSession) -> HabrArticle | None:
+async def parse_article(url: str, session: ClientSession) -> Optional[HabrArticle]:
     try:
         content: str = await get_html_content(session, url)
     except ValueError:
