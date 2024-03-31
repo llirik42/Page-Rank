@@ -6,5 +6,6 @@ from datetime import datetime
 class HabrArticle:
     title: str
     text: str
+    html: str
     link: str
     creation_date: datetime
