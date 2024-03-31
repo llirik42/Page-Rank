@@ -124,21 +124,17 @@ def _calculate_matrix(number_of_vertices: int, edges: list[Edge]) -> float_array
     matrix: float_array = np.zeros((number_of_vertices, number_of_vertices))
     fill_value: float = 1 / number_of_vertices
 
-    for e1 in edges:
-        current_sum: float = 0
-        for e2 in edges:
-            if e1.src == e2.src:
-                current_sum += e2.weight
+    for e in edges:
+        matrix[e.dst][e.src] = 1
 
-        matrix[e1.dst, e1.src] = e1.weight / current_sum if current_sum else 0
+    sums: list[int] = [sum(c) for c in matrix.transpose()]
 
-    matrix_t: float_array = matrix.transpose()
+    for i in range(number_of_vertices):
+        for j in range(number_of_vertices):
+            current_sum: int = sums[j]
+            matrix[i][j] = fill_value if current_sum == 0 else matrix[i][j] / current_sum
 
-    for y in range(number_of_vertices):
-        if (matrix_t[y] == np.zeros(number_of_vertices)).all():
-            matrix_t[y] = np.full(number_of_vertices, fill_value)
-
-    return matrix_t.transpose()
+    return matrix
 
 
 def _iterate(start_ranks: float_array,
