@@ -41,7 +41,6 @@ async def get_links_recursive(session: ClientSession, url, res=None, visited=Non
         print(link, is_habr_articles_link(link))
         if not is_habr_articles_link(link) and only_habr_links:
             continue
-        print(link)
         pair = Pair(src=url, dst=link)
         res.append(pair)
         await get_links_recursive(session, link, res, visited, max_links_cnt, only_habr_links)
