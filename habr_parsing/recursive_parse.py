@@ -22,7 +22,6 @@ async def fetch_raw_habr_pages_async(session: ClientSession, pages=10):
 
 async def get_links_recursive(session: ClientSession, url, res=None, visited=None, max_links_cnt=10,
                               only_habr_links=False) -> list[Pair]:
-
     if res is None:
         res: list[Pair] = []
 

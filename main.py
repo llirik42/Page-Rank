@@ -26,7 +26,6 @@ async def main():
         for article_filtered in articles_filtered:
             pairs = (await get_links_recursive(session, article_filtered.link, max_links_cnt=2, only_habr_links=True))
             all_pairs.extend(pairs)
-            # draw_graph(pairs)
 
         ranked_objects: list[RankedObject] = calculate_ranks(all_pairs, precision=5, damping_factor=1)
         print(ranked_objects)

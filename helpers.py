@@ -1,5 +1,4 @@
 import re
-from urllib.parse import urlparse
 
 import networkx as nx
 from matplotlib import pyplot as plt

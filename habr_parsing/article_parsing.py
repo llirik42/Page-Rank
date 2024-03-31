@@ -5,15 +5,20 @@ from typing import Optional
 
 import aiohttp
 import bs4
-from aiohttp import ClientSession
 
 from dto import HabrArticle
 from general_parsing.parse_links import get_html_content
-from habr_parsing.consts import habr_article_selector, habr_article_main_title, habr_article_body, \
-    habr_article_timestamp, link_tag, list_habr_article_main_title
+from habr_parsing.consts import (
+    habr_article_selector,
+    habr_article_main_title,
+    habr_article_body,
+    habr_article_timestamp,
+    link_tag,
+    list_habr_article_main_title
+)
 
 
-async def parse_article(url: str, session: ClientSession) -> Optional[HabrArticle]:
+async def parse_article(url: str, session: aiohttp.ClientSession) -> Optional[HabrArticle]:
     try:
         await asyncio.sleep(random.randint(0, 5))
         content: str = await get_html_content(session, url)
@@ -49,12 +54,3 @@ async def extract_article_links_in_list_page(content: str) -> list[str]:
     soup: bs4.BeautifulSoup = bs4.BeautifulSoup(content, "html.parser")
     links = [link.get('href') for link in soup.select(selector=list_habr_article_main_title)]
     return list(map(str, links))
-
-
-async def main():
-    async with aiohttp.ClientSession() as session:
-        habr_article = await parse_article("https://habr.com/ru/articles/454/", session)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
