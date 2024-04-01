@@ -1,56 +1,38 @@
-import asyncio
-import random
 from datetime import datetime
-from typing import Optional
 
 import aiohttp
 import bs4
 
 from dto import HabrArticle
-from general_parsing.parse_links import get_html_content
-from habr_parsing.consts import (
-    habr_article_selector,
-    habr_article_main_title,
-    habr_article_body,
-    habr_article_timestamp,
-    link_tag,
-    list_habr_article_main_title
+from general_parsing import fetch_html_content
+from .consts import (
+    ARTICLE_SELECTOR,
+    ARTICLE_MAIN_TITLE,
+    ARTICLE_BODY,
+    ARTICLE_TIMESTAMP,
 )
 
 
-async def parse_article(url: str, session: aiohttp.ClientSession) -> Optional[HabrArticle]:
+async def parse_article(url: str, session: aiohttp.ClientSession) -> HabrArticle:
     try:
-        await asyncio.sleep(random.randint(0, 5))
-        content: str = await get_html_content(session, url)
+        content: str = await fetch_html_content(session=session, url=url)
     except ValueError:
-        return None
+        exit(1)
 
     soup: bs4.BeautifulSoup = bs4.BeautifulSoup(content, "html.parser")
-    article_tag: bs4.Tag = soup.select_one(selector=habr_article_selector)
+    article_tag: bs4.Tag = soup.select_one(selector=ARTICLE_SELECTOR)
 
-    title = article_tag.select_one(habr_article_main_title).text.strip()
-    text = article_tag.select_one(habr_article_body).text.strip()
-    html = article_tag.select_one(habr_article_body).prettify()
-    link = url
-    created_date: str = article_tag.select_one(selector=habr_article_timestamp).get("datetime")
-    parsed_created_date: datetime = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+    title: str = article_tag.select_one(ARTICLE_MAIN_TITLE).text.strip()
+    text: str = article_tag.select_one(ARTICLE_BODY).text.strip()
+    html: str = article_tag.select_one(ARTICLE_BODY).prettify()
+    link: str = url
+    created_datetime_str: str = article_tag.select_one(selector=ARTICLE_TIMESTAMP).get("datetime")
+    create_datetime: datetime = datetime.fromisoformat(created_datetime_str.replace('Z', '+00:00'))
 
     return HabrArticle(
         title=title,
         text=text,
         html=html,
         link=link,
-        creation_date=parsed_created_date
+        creation_datetime=create_datetime
     )
-
-
-async def extract_article_links_in_body(article: HabrArticle) -> list[str]:
-    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(article.html, "html.parser")
-    links = [link.get('href') for link in soup.select(selector=link_tag)]
-    return list(map(str, links))
-
-
-async def extract_article_links_in_list_page(content: str) -> list[str]:
-    soup: bs4.BeautifulSoup = bs4.BeautifulSoup(content, "html.parser")
-    links = [link.get('href') for link in soup.select(selector=list_habr_article_main_title)]
-    return list(map(str, links))

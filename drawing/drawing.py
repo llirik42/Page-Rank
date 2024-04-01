@@ -1,9 +1,7 @@
-import re
-
 import networkx as nx
 from matplotlib import pyplot as plt
 
-from dto.pair import Pair
+from dto import Pair
 
 
 def draw_graph(pairs: list[Pair]):
@@ -20,8 +18,3 @@ def draw_graph(pairs: list[Pair]):
 
     plt.title("Directed Graph")
     plt.show()
-
-
-def is_habr_articles_link(url):
-    pattern = r"^https?:\/\/habr\.com\/ru\/.*?(?:post|articles|blog|news)\/\d+\/?$"
-    return bool(re.match(pattern, url))

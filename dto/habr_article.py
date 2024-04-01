@@ -8,7 +8,13 @@ class HabrArticle:
     text: str
     html: str
     link: str
-    creation_date: datetime
+    creation_datetime: datetime
 
+    def __repr__(self) -> str:
+        max_length: int = 60
+        length: int = len(str(self.title))
 
-articles = list[HabrArticle]
+        if length >= max_length:
+            return f'{self.title[:max_length]}... ({self.link})'
+        else:
+            return f'{self.title} {" " * (max_length - length + 2)} ({self.link})'
