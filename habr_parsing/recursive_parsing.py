@@ -20,6 +20,7 @@ async def parse_recursive_articles(session: ClientSession,
                                    max_depth: int = 1,
                                    current_depth: int = 0,
                                    only_habr_links=True) -> list[Pair]:
+    # TODO: распараллелить это так, чтобы каждую ссылку "link" внутри цикла по "links" обрабатывал свой user-thread
     if res is None:
         res: list[Pair] = []
 
