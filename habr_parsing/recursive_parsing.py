@@ -13,32 +13,6 @@ def is_habr_articles_link(url):
     return bool(re.match(pattern, url))
 
 
-async def handle_link(session: ClientSession,
-                      url: str,
-                      parent_article: HabrArticle,
-                      res: Optional[list[Pair]] = None,
-                      visited_links: Optional[set] = None,
-                      max_depth: int = 1,
-                      current_depth: int = 0,
-                      only_habr_links=True) -> None:
-    if url in visited_links or (not is_habr_articles_link(url) and only_habr_links):
-        return
-
-    current_article: HabrArticle = await parse_article(url=url, session=session)
-    pair: Pair = Pair(parent_article, current_article)
-
-    res.append(pair)
-    res.extend(await parse_recursive_articles(
-        session=session,
-        url=url,
-        res=res,
-        visited_links=visited_links,
-        max_depth=max_depth,
-        current_depth=current_depth+1,
-        only_habr_links=only_habr_links
-    ))
-
-
 async def parse_recursive_articles(session: ClientSession,
                                    url: str,
                                    res: Optional[list[Pair]] = None,
