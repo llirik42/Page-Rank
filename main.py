@@ -14,10 +14,6 @@ async def main():
 
         print(summarize(article))
 
-        f = open('out.html', 'w')
-        f.write(article.text)
-        f.close()
-
         # pairs: list[Pair] = list(await parse_recursive_articles(
         #     session=session,
         #     url=article_link,
