@@ -13,7 +13,7 @@ async def main():
         pairs: list[Pair] = list(await parse_recursive_articles(
             session=session,
             url=article_link,
-            max_depth=1,
+            max_depth=4,
             only_habr_links=True
         ))
 
@@ -21,8 +21,6 @@ async def main():
 
         for r in ranked_objects:
             print(r.obj, r.rank)
-
-        # draw_graph(pairs)
 
 
 if __name__ == '__main__':
