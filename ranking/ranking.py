@@ -23,7 +23,7 @@ float_array = np.ndarray[typing.Any, np.dtype[np.float64]]
 
 def calculate_ranks(
         pairs: list[Pair],
-        damping_factor: float = 1) -> list[RankedObject]:
+        damping_factor: float = 0.85) -> list[RankedObject]:
     """
     Calculates ranks of objects represented as a list of directed pairs. Function accepts **damping factor**.
 
@@ -108,17 +108,17 @@ def _calculate_damping_vector(number_of_vertices: int, damping_factor: float) ->
 
 def _calculate_matrix(number_of_vertices: int, edges: list[Edge]) -> float_array:
     matrix: float_array = np.zeros((number_of_vertices, number_of_vertices))
-    fill_value: float = 1 / number_of_vertices
 
-    for e in edges:
-        matrix[e.dst][e.src] = 1
+    for e1 in edges:
+        weights_sum: float = 0
+        for e2 in edges:
+            if e2.src == e1.src:
+                weights_sum += e2.weight
 
-    sums: list[int] = [sum(c) for c in matrix.transpose()]
+        if weights_sum == 0:
+            print(e1)
 
-    for i in range(number_of_vertices):
-        for j in range(number_of_vertices):
-            current_sum: int = sums[j]
-            matrix[i][j] = fill_value if current_sum == 0 else matrix[i][j] / current_sum
+        matrix[e1.src][e1.dst] = e1.weight / weights_sum
 
     return matrix
 
@@ -128,9 +128,10 @@ def _iterate(start_ranks: float_array,
              damping_vector: float_array,
              damping_factor: float) -> float_array:
     ranks: float_array = start_ranks
+    matrix_t: float_array = matrix.transpose()
 
     while True:
-        new_ranks: float_array = damping_vector + damping_factor * matrix.dot(ranks)
+        new_ranks: float_array = damping_vector + damping_factor * matrix_t.dot(ranks)
         all_close: bool = np.allclose(ranks, new_ranks)
         ranks = new_ranks
 

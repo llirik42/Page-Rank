@@ -2,10 +2,10 @@ import asyncio
 
 from aiohttp import ClientSession
 
+from drawing import draw_graph
 from dto import Pair
 from habr_parsing import parse_recursive_articles
 from ranking import RankedObject, calculate_ranks
-from drawing import draw_graph
 
 
 async def main():
@@ -15,16 +15,17 @@ async def main():
         pairs: list[Pair] = list(await parse_recursive_articles(
             session=session,
             url=article_link,
-            max_depth=3,
+            max_depth=5,
             only_habr_links=True
         ))
 
-        ranked_objects: list[RankedObject] = calculate_ranks(pairs, damping_factor=1)
+        ranked_objects: list[RankedObject] = calculate_ranks(pairs)
 
         for r in ranked_objects:
             print(r.obj.brief(), r.rank)
 
         draw_graph(pairs)
+
 
 if __name__ == '__main__':
     asyncio.run(main())

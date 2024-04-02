@@ -21,3 +21,9 @@ class HabrArticle:
             return f'{self.title[:max_length]}... ({self.link})'
         else:
             return f'{self.title} {" " * (max_length - length + 2)} ({self.link})'
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, HabrArticle):
+            return False
+
+        return other.link == self.title

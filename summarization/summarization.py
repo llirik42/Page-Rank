@@ -23,8 +23,10 @@ def summarize(article: HabrArticle) -> list[RankedObject]:
             si: Sentence = sentences[i]
             sj: Sentence = sentences[j]
             similarity: float = _calculate_sentences_similarity(si, sj)
-            pairs.append(Pair(si, sj, similarity))
-            pairs.append(Pair(sj, si, similarity))
+
+            if similarity > 0:
+                pairs.append(Pair(si, sj, similarity))
+                pairs.append(Pair(sj, si, similarity))
 
     return calculate_ranks(pairs)
 
@@ -45,4 +47,5 @@ def _calculate_sentences_similarity(s1: Sentence, s2: Sentence) -> float:
         return float(1 - len(s1_words_set.difference(s2_words_set)))
 
     common_words_set: set[str] = set.intersection(s1_words_set, s2_words_set)
+
     return len(common_words_set) / (log(l1) + log(l2))
