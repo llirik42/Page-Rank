@@ -1,39 +1,67 @@
-from dataclasses import dataclass
 from math import log
+from dataclasses import dataclass
 
-from dto import HabrArticle, Pair
+from dto import Pair
 from ranking import calculate_ranks, RankedObject
 
 
 @dataclass(frozen=True)
-class Sentence:
+class WordsGroup:
     words: frozenset[str]
 
 
-def summarize(article: HabrArticle) -> list[RankedObject]:
-    sentences: list[Sentence] = [Sentence(frozenset(s.strip().split(' '))) for s in article.text.split('.')]
+def summarize(text: str, partition: int) -> list[RankedObject]:
+    all_words: list[str] = []
+    for i in text.split('.'):
+        all_words.extend(i.split(' '))
+    all_words = [w for w in all_words if _accept_word(w)]
 
-    sentences_count: int = len(sentences)
+    words_groups: list[WordsGroup] = []
+    for i in range(len(all_words) // partition + 1):
+        words_groups.append(WordsGroup(frozenset(all_words[i*partition:(i+1)*partition])))
+
+    words_groups_count: int = len(words_groups)
+
     pairs: list[Pair] = []
-
-    for i in range(sentences_count):
-        for j in range(sentences_count):
+    for i in range(words_groups_count):
+        for j in range(words_groups_count):
             if i == j:
                 continue
-            si: Sentence = sentences[i]
-            sj: Sentence = sentences[j]
-            similarity: float = _calculate_sentences_similarity(si, sj)
+            g1: WordsGroup = words_groups[i]
+            g2: WordsGroup = words_groups[j]
+            similarity: float = _calculate_sentences_similarity(g1.words, g2.words)
 
             if similarity > 0:
-                pairs.append(Pair(si, sj, similarity))
-                pairs.append(Pair(sj, si, similarity))
+                pairs.append(Pair(g1, g2, similarity))
+                pairs.append(Pair(g1, g2, similarity))
 
     return calculate_ranks(pairs)
 
 
-def _calculate_sentences_similarity(s1: Sentence, s2: Sentence) -> float:
-    s1_words_set: set[str] = set(s1.words)
-    s2_words_set: set[str] = set(s2.words)
+def _accept_word(word: str) -> bool:
+    forbidden: list[str] = [
+        'на',
+        'и',
+        'ещё',
+        'в',
+        'за',
+        'для',
+        'её',
+        'а',
+        'нужно',
+        'что',
+        'не',
+        'с',
+        'то',
+        'от',
+    ]
+
+    return word.isalpha() and word.lower() not in forbidden
+
+
+def _calculate_sentences_similarity(s1: frozenset[str], s2: frozenset[str]) -> float:
+    s1_words_set: set[str] = set(s1)
+    s2_words_set: set[str] = set(s2)
 
     l1: int = len(s1_words_set)
     l2: int = len(s2_words_set)

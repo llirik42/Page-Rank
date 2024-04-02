@@ -12,7 +12,7 @@ async def main():
         article_link: str = 'https://habr.com/ru/articles/789252/'
         article: HabrArticle = await parse_article(session=session, url=article_link)
 
-        for ranked_sentence in summarize(article)[0:5]:
+        for ranked_sentence in summarize(article.text, partition=5):
             print(list(ranked_sentence.obj.words), ranked_sentence.rank)
             print()
 
