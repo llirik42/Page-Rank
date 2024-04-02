@@ -12,8 +12,8 @@ async def main():
         article_link: str = 'https://habr.com/ru/articles/789252/'
         article: HabrArticle = await parse_article(session=session, url=article_link)
 
-        for sentence in summarize(article):
-            print(sentence)
+        for ranked_sentence in summarize(article)[0:5]:
+            print(list(ranked_sentence.obj.words), ranked_sentence.rank)
             print()
 
 if __name__ == '__main__':
