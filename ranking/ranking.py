@@ -7,7 +7,7 @@ from dto.pair import Pair
 from .ranked_object import RankedObject
 
 
-@dataclass
+@dataclass(frozen=True)
 class Edge:
     """
     Represents an edge of graph.
@@ -23,23 +23,14 @@ float_array = np.ndarray[typing.Any, np.dtype[np.float64]]
 
 def calculate_ranks(
         pairs: list[Pair],
-        precision: int = 5,
         damping_factor: float = 1) -> list[RankedObject]:
     """
-    Calculates ranks of objects represented as a list of directed pairs. Function accepts **precision**
-    and **damping factor**.
-
-    **Precision** determines number **epsilon**, where **epsilon** = 0.1^(**precision**). **Epsilon** determines
-    number of iterations for calculating ranks. Iterations stop when the difference between iterations
-    (between ranks or between errors) is less than **epsilon**. So, the smaller **precision**,
-    the less iteration will be made and less accurate will be result. But large values of **precision**
-    increase time of ranks calculation.
+    Calculates ranks of objects represented as a list of directed pairs. Function accepts **damping factor**.
 
     The smaller the **damping factor**, the faster the ranks are calculated, but the smaller
     the difference between the ranks of different elements (order of ranks probably would be the same).
 
     :param pairs: list of directed pairs
-    :param precision: number of decimal places. It must be non-negative
     :param damping_factor: coefficient that regulates ranking. It must be in [0, 1]
     :return: list of ranked objects
     """
@@ -60,7 +51,6 @@ def calculate_ranks(
     graph_ranks: list[float] = _calculate_graph_ranks(
         number_of_vertices=unique_objects_count,
         edges=graph_edges,
-        precision=precision,
         damping_factor=damping_factor
     )
 
@@ -74,7 +64,6 @@ def calculate_ranks(
 def _calculate_graph_ranks(
         number_of_vertices: int,
         edges: list[Edge],
-        precision: int,
         damping_factor: float) -> list[float]:
     matrix: float_array = _calculate_matrix(
         number_of_vertices=number_of_vertices,
@@ -86,11 +75,8 @@ def _calculate_graph_ranks(
         damping_factor=damping_factor
     )
 
-    epsilon: float = 0.1 ** precision
-
     ranks: float_array = _iterate(
         start_ranks=_get_start_ranks(number_of_vertices),
-        epsilon=epsilon,
         matrix=matrix,
         damping_vector=damping_vector,
         damping_factor=damping_factor
@@ -138,22 +124,18 @@ def _calculate_matrix(number_of_vertices: int, edges: list[Edge]) -> float_array
 
 
 def _iterate(start_ranks: float_array,
-             epsilon: float,
              matrix: float_array,
              damping_vector: float_array,
              damping_factor: float) -> float_array:
     ranks: float_array = start_ranks
 
-    prev_diff: float = 0
     while True:
         new_ranks: float_array = damping_vector + damping_factor * matrix.dot(ranks)
-        diff: float = float(np.linalg.norm(ranks - new_ranks))
+        all_close: bool = np.allclose(ranks, new_ranks)
         ranks = new_ranks
 
-        if diff < epsilon or abs(diff - prev_diff) < epsilon:
+        if all_close:
             break
-
-        prev_diff = diff
 
     return ranks
 

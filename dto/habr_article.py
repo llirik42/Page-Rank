@@ -10,7 +10,10 @@ class HabrArticle:
     link: str
     creation_datetime: datetime
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
+        return '/'.join(self.link.split('/')[-3:-1])
+
+    def brief(self) -> str:
         max_length: int = 60
         length: int = len(str(self.title))
 
