@@ -3,13 +3,17 @@ import asyncio
 from summarization import summarize
 
 
+WORDS_IN_GROUP_COUNT: int = 10
+TEXT_PATH: str = 'texts/T3L.txt'
+
+
 async def main():
-    file = open('texts/T3L.txt', 'r')
+    file = open(TEXT_PATH, 'r')
     text: str = file.read()
     file.close()
 
-    for ranked_sentence in summarize(text, partition=10)[:1]:
-        print(list(ranked_sentence.obj.words))
+    for ranked in summarize(text, partition=WORDS_IN_GROUP_COUNT):
+        print(list(ranked.obj.words), ranked.rank)
         print()
 
 
