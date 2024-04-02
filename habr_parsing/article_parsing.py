@@ -11,6 +11,7 @@ from .consts import (
     ARTICLE_BODY,
     ARTICLE_TIMESTAMP,
 )
+from .habr_utils import construct_default_article_url, extract_article_id
 
 
 async def parse_article(url: str, session: aiohttp.ClientSession) -> HabrArticle:
@@ -25,14 +26,15 @@ async def parse_article(url: str, session: aiohttp.ClientSession) -> HabrArticle
     title: str = article_tag.select_one(ARTICLE_MAIN_TITLE).text.strip()
     text: str = article_tag.select_one(ARTICLE_BODY).text.strip()
     html: str = article_tag.select_one(ARTICLE_BODY).prettify()
-    link: str = url
     created_datetime_str: str = article_tag.select_one(selector=ARTICLE_TIMESTAMP).get("datetime")
     create_datetime: datetime = datetime.fromisoformat(created_datetime_str.replace('Z', '+00:00'))
+    article_id: int = extract_article_id(url)
 
     return HabrArticle(
         title=title,
         text=text,
         html=html,
-        link=link,
-        creation_datetime=create_datetime
+        link=construct_default_article_url(article_id),
+        creation_datetime=create_datetime,
+        id=article_id
     )

@@ -7,11 +7,12 @@ class HabrArticle:
     title: str
     text: str
     html: str
-    link: str
     creation_datetime: datetime
+    link: str
+    id: int
 
     def __str__(self) -> str:
-        return '/'.join(self.link.split('/')[-3:-1])
+        return str(self.id)
 
     def brief(self) -> str:
         max_length: int = 60
@@ -22,8 +23,8 @@ class HabrArticle:
         else:
             return f'{self.title} {" " * (max_length - length + 2)} ({self.link})'
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
         if not isinstance(other, HabrArticle):
             return False
 
-        return other.link == self.title
+        return self.id == other.id
