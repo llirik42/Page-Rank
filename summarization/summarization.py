@@ -10,6 +10,11 @@ class WordsGroup:
     words: frozenset[str]
 
 
+file = open('russian_nouns.txt', 'r')
+NOUNS = file.read().splitlines()
+file.close()
+
+
 def summarize(text: str, partition: int) -> list[RankedObject]:
     all_words: list[str] = []
     for i in text.split('.'):
@@ -39,24 +44,7 @@ def summarize(text: str, partition: int) -> list[RankedObject]:
 
 
 def _accept_word(word: str) -> bool:
-    forbidden: list[str] = [
-        'на',
-        'и',
-        'ещё',
-        'в',
-        'за',
-        'для',
-        'её',
-        'а',
-        'нужно',
-        'что',
-        'не',
-        'с',
-        'то',
-        'от',
-    ]
-
-    return word.isalpha() and word.lower() not in forbidden
+    return word.isalpha() and word.lower() in NOUNS
 
 
 def _calculate_sentences_similarity(s1: frozenset[str], s2: frozenset[str]) -> float:
