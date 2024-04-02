@@ -1,5 +1,5 @@
-from math import log
 from dataclasses import dataclass
+from math import log
 
 from dto import Pair
 from ranking import calculate_ranks, RankedObject
@@ -10,20 +10,14 @@ class WordsGroup:
     words: frozenset[str]
 
 
-file = open('russian_nouns.txt', 'r')
-NOUNS = file.read().splitlines()
-file.close()
-
-
 def summarize(text: str, partition: int) -> list[RankedObject]:
     all_words: list[str] = []
     for i in text.split('.'):
         all_words.extend(i.split(' '))
-    all_words = [w for w in all_words if _accept_word(w)]
 
     words_groups: list[WordsGroup] = []
     for i in range(len(all_words) // partition + 1):
-        words_groups.append(WordsGroup(frozenset(all_words[i*partition:(i+1)*partition])))
+        words_groups.append(WordsGroup(frozenset(all_words[i * partition:(i + 1) * partition])))
 
     words_groups_count: int = len(words_groups)
 
@@ -41,10 +35,6 @@ def summarize(text: str, partition: int) -> list[RankedObject]:
                 pairs.append(Pair(g1, g2, similarity))
 
     return calculate_ranks(pairs)
-
-
-def _accept_word(word: str) -> bool:
-    return word.isalpha() and word.lower() in NOUNS
 
 
 def _calculate_sentences_similarity(s1: frozenset[str], s2: frozenset[str]) -> float:

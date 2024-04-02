@@ -1,20 +1,17 @@
 import asyncio
 
-from aiohttp import ClientSession
-
-from dto import HabrArticle
-from habr_parsing import parse_article
 from summarization import summarize
 
 
 async def main():
-    async with ClientSession() as session:
-        article_link: str = 'https://habr.com/ru/articles/789252/'
-        article: HabrArticle = await parse_article(session=session, url=article_link)
+    file = open('texts/T3L.txt', 'r')
+    text: str = file.read()
+    file.close()
 
-        for ranked_sentence in summarize(article.text, partition=5):
-            print(list(ranked_sentence.obj.words), ranked_sentence.rank)
-            print()
+    for ranked_sentence in summarize(text, partition=10)[:1]:
+        print(list(ranked_sentence.obj.words))
+        print()
+
 
 if __name__ == '__main__':
     asyncio.run(main())
